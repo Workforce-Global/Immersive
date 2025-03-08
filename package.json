@@ -22,6 +22,7 @@
     "epubjs": "^0.3.93",
     "rxjs": "^7.8.1",
     "tslib": "^2.5.0",
+    "uint8array-extras": "^1.4.0",
     "zone.js": "~0.14.0"
   },
   "devDependencies": {

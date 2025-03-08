@@ -230,9 +230,14 @@ export class BookService {
     this.books.next(updatedBooks);
   }
 
-  async readBookFile(path: string): Promise<string> {
+  async readBookFile(path: string): Promise<ArrayBuffer> {
     try {
-      return await invoke("read_epub_content", { filePath: path });
+      const content = await readBinaryFile(path);
+      // Convert Uint8Array to ArrayBuffer with proper typing
+      return content.buffer.slice(
+        content.byteOffset,
+        content.byteOffset + content.byteLength
+      ) as ArrayBuffer;
     } catch (error) {
       console.error("Failed to read book file:", error);
       throw new Error("Could not read book content");

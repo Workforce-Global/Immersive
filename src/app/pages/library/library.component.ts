@@ -488,7 +488,13 @@ export class LibraryComponent implements OnInit {
 
   openBook(bookId: string) {
     if (!this.multiSelect) {
-      this.router.navigate(["/read", bookId]);
+      const book = this.books.find((b) => b.id === bookId);
+      this.router.navigate(["/read", bookId], {
+        state: {
+          bookData: book, // Pass the full book object
+          epubPath: book?.path,
+        },
+      });
     }
   }
 }

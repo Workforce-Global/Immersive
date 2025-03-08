@@ -121,3 +121,14 @@ pub fn check_storage_path(handle: AppHandle) -> Result<String, String> {
 
     Ok(storage_path.to_string_lossy().into_owned())
 }
+
+#[tauri::command]
+pub fn read_epub_content(file_path: String) -> Result<Vec<u8>, String> {
+    let path = PathBuf::from(&file_path);
+    if !path.exists() {
+        return Err("File does not exist".to_string());
+    }
+    
+    fs::read(&path)
+        .map_err(|e| format!("Failed to read EPUB content: {:?}", e))
+}
