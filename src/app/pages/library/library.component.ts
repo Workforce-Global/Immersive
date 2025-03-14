@@ -100,8 +100,8 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
       </header>
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Search Bar -->
-        <div class="mb-8">
+        <!-- Search Bar with Dropdown -->
+        <div class="mb-8 relative">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <ng-icon 
@@ -114,7 +114,46 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
               placeholder="Search your library..."
               class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange($event)"
+              (focus)="showSearchResults = true"
             />
+          </div>
+
+          <!-- Search Results Dropdown -->
+          <div *ngIf="showSearchResults && searchQuery && filteredBooks().length > 0"
+               class="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+            <div *ngFor="let book of filteredBooks()"
+                 class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                 (click)="handleBookClick(book)">
+              <!-- Book Cover -->
+              <div class="w-12 h-16 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden flex-shrink-0">
+                <img
+                  *ngIf="book.coverUrl"
+                  [src]="book.coverUrl"
+                  [alt]="book.title"
+                  class="w-full h-full object-cover"
+                />
+                <div
+                  *ngIf="!book.coverUrl"
+                  class="w-full h-full flex items-center justify-center"
+                >
+                  <ng-icon
+                    name="heroBookOpen"
+                    class="h-6 w-6 text-gray-400">
+                  </ng-icon>
+                </div>
+              </div>
+
+              <!-- Book Info -->
+              <div class="ml-4 flex-1">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ book.title }}
+                </h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ book.author }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -141,7 +180,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
         </div>
 
         <!-- Recently Opened Books -->
-        <section *ngIf="recentBooks.length > 0" class="mb-12">
+        <!-- <section *ngIf="recentBooks.length > 0" class="mb-12">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Recently Opened
             </h2>
@@ -152,7 +191,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                  [class.ring-blue-500]="multiSelect && isSelected(book)"
                  (click)="handleBookClick(book)">
               
-              <!-- Selection Checkbox -->
+            
               <div *ngIf="multiSelect" 
                    class="absolute top-2 left-2 z-10">
                 <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
@@ -167,7 +206,6 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                 </div>
               </div>
 
-              <!-- Book Cover -->
               <div class="aspect-w-2 aspect-h-3 bg-gray-200 dark:bg-gray-700 max-h-[240px]">
                 <img
                   *ngIf="book.coverUrl"
@@ -186,7 +224,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                 </div>
               </div>
 
-              <!-- Book Info -->
+  
               <div class="p-4">
                 <h3 class="font-medium text-gray-900 dark:text-white line-clamp-1">
                   {{ book.title }}
@@ -207,7 +245,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                 </div>
               </div>
 
-              <!-- Actions Button -->
+   
               <button
                 *ngIf="!multiSelect"
                 (click)="showDetails($event, book)"
@@ -217,7 +255,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
               </button>
             </div>
           </div>
-        </section>
+        </section> -->
 
         <!-- All Books -->
         <section *ngIf="books.length > 0">
@@ -397,11 +435,20 @@ export class LibraryComponent implements OnInit {
   loading = false;
   loadingMessage = '';
   showSettings = false;
+  showSearchResults = false;
 
   constructor(
-    private bookService: BookService, 
+    private bookService: BookService,
     private router: Router
-  ) {}
+  ) {
+    // Close search results when clicking outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.search-container')) {
+        this.showSearchResults = false;
+      }
+    });
+  }
 
   ngOnInit() {
     this.bookService.loading$.subscribe(loading => {
@@ -444,14 +491,20 @@ export class LibraryComponent implements OnInit {
     }
   }
 
+  onSearchChange(query: string) {
+    this.searchQuery = query;
+    this.showSearchResults = true;
+  }
+
   filteredBooks() {
     if (!this.searchQuery || this.searchQuery.trim() === "") {
-      return this.books;
+      return [];
     }
+    const query = this.searchQuery.toLowerCase();
     return this.books.filter(
       (book) =>
-        book.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        book.author.toLowerCase().includes(this.searchQuery.toLowerCase())
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query)
     );
   }
 
@@ -531,7 +584,7 @@ export class LibraryComponent implements OnInit {
       const book = this.books.find((b) => b.id === bookId);
       this.router.navigate(["/read", bookId], {
         state: {
-          bookData: book, // Pass the full book object
+          bookData: book,
           epubPath: book?.path,
         },
       });

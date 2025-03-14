@@ -26,6 +26,7 @@ import {
   heroBookOpen,
   heroXMark
 } from '@ng-icons/heroicons/outline';
+import { PDFDocumentProxy } from 'pdfjs-dist';
 
 @Component({
   selector: "app-reader",
@@ -129,7 +130,7 @@ import {
             <!-- Navigation Controls -->
             <div class="absolute inset-y-0 left-0 flex items-center">
               <button
-                (click)="prev()"
+                (click)="prevPage()"
                 class="p-4 bg-gray-800/20 hover:bg-gray-800/40 text-white rounded-r-lg transition-colors"
               >
                 <ng-icon name="heroChevronLeft" class="w-6 h-6"></ng-icon>
@@ -137,7 +138,7 @@ import {
             </div>
             <div class="absolute inset-y-0 right-0 flex items-center">
               <button
-                (click)="next()"
+                (click)="nextPage()"
                 class="p-4 bg-gray-800/20 hover:bg-gray-800/40 text-white rounded-l-lg transition-colors"
               >
                 <ng-icon name="heroChevronRight" class="w-6 h-6"></ng-icon>
@@ -230,6 +231,9 @@ export class ReaderComponent implements OnInit {
   currentBook: Book | null = null;
   tocItems: any[] = [];
   loading = false;
+  pdfDocument: PDFDocumentProxy | null = null;
+  currentPage = 1;
+  zoom = 1.0;
 
   // UI state
   showToc = false;
@@ -301,22 +305,114 @@ export class ReaderComponent implements OnInit {
     }
   }
 
-  private async loadBook(epubPath: string) {
+  async loadBook(path: string) {
     try {
       this.loading = true;
-      const bookData = await this.bookService.readBookFile(epubPath);
-      const blob = new Blob([bookData], { type: "application/epub+zip" });
-      const url = URL.createObjectURL(blob);
+      const bookData = await this.bookService.readBookFile(path);
 
-      this.book = ePub(url, { openAs: "epub" });
-      await this.initializeReader();
-      this.setupCleanup(url);
-      await this.loadTableOfContents();
+      if (this.currentBook?.format === 'pdf') {
+        await this.loadPdf(bookData);
+      } else {
+        await this.loadEpub(bookData);
+      }
     } catch (error) {
       console.error("Failed to load book:", error);
     } finally {
       this.loading = false;
     }
+  }
+
+  private async loadPdf(data: ArrayBuffer) {
+    const pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 
+      `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+    this.pdfDocument = await pdfjsLib.getDocument(data).promise;
+    
+    // Set up the viewer container
+    const container = this.readerContainer.nativeElement;
+    container.innerHTML = '';
+    container.style.overflow = 'auto';
+    container.style.position = 'relative';
+
+    // Load and render the first page
+    await this.renderPdfPage(this.currentPage);
+
+    // Set up keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        this.nextPage();
+      } else if (e.key === 'ArrowLeft') {
+        this.prevPage();
+      }
+    });
+  }
+
+  private async renderPdfPage(pageNumber: number) {
+    if (!this.pdfDocument) return;
+
+    const page = await this.pdfDocument.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: this.zoom });
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Failed to get canvas context');
+    }
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+
+    await page.render(renderContext).promise;
+
+    // Clear previous content and add the new canvas
+    const container = this.readerContainer.nativeElement;
+    container.innerHTML = '';
+    container.appendChild(canvas);
+
+    // Update progress
+    if (this.currentBook) {
+      this.currentBook.progress = pageNumber / this.pdfDocument.numPages;
+      await this.bookService.updateBookProgress(
+        this.currentBook,
+        this.currentBook.progress
+      );
+    }
+  }
+
+  async nextPage() {
+    if (this.currentBook?.format === 'pdf') {
+      if (this.pdfDocument && this.currentPage < this.pdfDocument.numPages) {
+        this.currentPage++;
+        await this.renderPdfPage(this.currentPage);
+      }
+    } else {
+      this.rendition?.next();
+    }
+  }
+
+  async prevPage() {
+    if (this.currentBook?.format === 'pdf') {
+      if (this.pdfDocument && this.currentPage > 1) {
+        this.currentPage--;
+        await this.renderPdfPage(this.currentPage);
+      }
+    } else {
+      this.rendition?.prev();
+    }
+  }
+
+  private async loadEpub(data: ArrayBuffer) {
+    const blob = new Blob([data], { type: "application/epub+zip" });
+    const url = URL.createObjectURL(blob);
+    this.book = ePub(url, { openAs: "epub" });
+    await this.initializeReader();
+    this.setupCleanup(url);
+    await this.loadTableOfContents();
   }
 
   private async initializeReader() {
@@ -451,15 +547,6 @@ export class ReaderComponent implements OnInit {
     this.rendition.themes.select(theme);
   }
 
-  // Navigation methods
-  next() {
-    this.rendition.next();
-  }
-
-  prev() {
-    this.rendition.prev();
-  }
-
   navigateToLocation(target: string) {
     if (target.startsWith("#")) {
       target = target.substring(1);
@@ -467,7 +554,6 @@ export class ReaderComponent implements OnInit {
     this.rendition.display(target);
   }
 
-  // Selection actions
   lookupSelection() {
     this.showContextMenu = false;
     this.showLookup = true;

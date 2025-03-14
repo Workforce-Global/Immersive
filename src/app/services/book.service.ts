@@ -12,7 +12,8 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { BehaviorSubject } from "rxjs";
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 
+  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export interface Book {
   id: string;
@@ -25,6 +26,7 @@ export interface Book {
   bookmarks: Bookmark[];
   highlights: Highlight[];
   lastRead: Date;
+  language?: string;
 }
 
 export interface Bookmark {
@@ -79,7 +81,6 @@ export class BookService {
       });
       const books: Book[] = [];
 
-      // Load metadata in parallel
       const bookPromises = metadataFiles
         .filter(file => file.name?.endsWith('.json'))
         .map(async file => {
@@ -129,7 +130,6 @@ export class BookService {
     if (book.format === 'pdf') {
       return this.searchPdfContent(book.path, query);
     } else {
-      // For EPUB, we'll use the existing search functionality
       return [];
     }
   }
@@ -211,7 +211,7 @@ export class BookService {
         const bookPath = (await invoke("check_storage_path", { handle: {} })) +
           `/${bookId}.${format}`;
 
-        let metadata: { title: string; author: string; cover?: string };
+        let metadata: { title: string; author: string; cover?: string; language?: string };
         
         if (format === 'pdf') {
           metadata = await this.extractPdfMetadata(bookContent);
@@ -232,6 +232,7 @@ export class BookService {
           bookmarks: [],
           highlights: [],
           lastRead: new Date(),
+          language: metadata.language || 'EN'
         };
 
         await this.saveBookMetadata(book);
@@ -261,12 +262,14 @@ export class BookService {
       return {
         title: info?.["Title"] || 'Untitled PDF',
         author: info?.["Author"] || 'Unknown Author',
+        language: info?.["Language"] || 'EN'
       };
     } catch (error) {
       console.error('Error extracting PDF metadata:', error);
       return {
         title: 'Untitled PDF',
         author: 'Unknown Author',
+        language: 'EN'
       };
     }
   }

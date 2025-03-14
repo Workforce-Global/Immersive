@@ -52,7 +52,7 @@ import { appWindow } from '@tauri-apps/api/window';
 
       <!-- Center section (draggable) -->
       <div class="flex-1 text-center titlebar-drag-region py-2.5">
-        <h1 class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+        <h1 class="text-center font-medium text-gray-700 dark:text-gray-200 truncate">
           Immersive Reader
         </h1>
       </div>
@@ -126,6 +126,6 @@ export class TitleBarComponent {
   }
 
   navigateHome() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 }

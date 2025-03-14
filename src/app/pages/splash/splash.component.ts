@@ -9,10 +9,8 @@ import { TitleBarComponent } from "../../components/title-bar.component";
   imports: [CommonModule, TitleBarComponent],
   template: `
     <div class="min-h-screen bg-gray-900 flex flex-col">
-      <!-- Title Bar -->
       <app-title-bar></app-title-bar>
 
-      <!-- Content -->
       <div class="flex-1 flex items-center justify-center">
         <div class="text-center">
           <img 
@@ -31,7 +29,7 @@ export class SplashComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.router.navigate(["/library"]);
+      this.router.navigate(["/dashboard"]);
     }, 2000);
   }
 }
