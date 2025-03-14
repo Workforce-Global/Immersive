@@ -8,6 +8,7 @@ import { SettingsModalComponent } from "../../components/settings-modal.componen
 import { SearchPanelComponent } from "../../components/search-panel.component";
 import { LookupPanelComponent } from "../../components/lookup-panel.component";
 import { ExcerptPanelComponent } from "../../components/excerpt-panel.component";
+import { LoadingScreenComponent } from "../../components/loading-screen.component";
 import { ExcerptService } from "../../services/excerpt.service";
 import { LookupService } from "../../services/lookup.service";
 import { BookService, Book } from "../../services/book.service";
@@ -38,7 +39,8 @@ import {
     SearchPanelComponent,
     LookupPanelComponent,
     ExcerptPanelComponent,
-    NgIconComponent
+    NgIconComponent,
+    LoadingScreenComponent
   ],
   providers: [
     provideIcons({ 
@@ -52,6 +54,12 @@ import {
   ],
   template: `
     <div class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+      <!-- Loading Screen -->
+      <app-loading-screen 
+        [show]="loading"
+        message="Loading book...">
+      </app-loading-screen>
+
       <!-- Title Bar -->
       <app-title-bar></app-title-bar>
 
@@ -221,6 +229,7 @@ export class ReaderComponent implements OnInit {
   rendition: any;
   currentBook: Book | null = null;
   tocItems: any[] = [];
+  loading = false;
 
   // UI state
   showToc = false;
@@ -275,6 +284,7 @@ export class ReaderComponent implements OnInit {
       });
     }
   }
+
   private setupCleanup(url: string) {
     // Clean up the Blob URL when the component is destroyed
     this.ngOnDestroy = () => {
@@ -293,6 +303,7 @@ export class ReaderComponent implements OnInit {
 
   private async loadBook(epubPath: string) {
     try {
+      this.loading = true;
       const bookData = await this.bookService.readBookFile(epubPath);
       const blob = new Blob([bookData], { type: "application/epub+zip" });
       const url = URL.createObjectURL(blob);
@@ -303,6 +314,8 @@ export class ReaderComponent implements OnInit {
       await this.loadTableOfContents();
     } catch (error) {
       console.error("Failed to load book:", error);
+    } finally {
+      this.loading = false;
     }
   }
 

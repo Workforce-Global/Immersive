@@ -20,6 +20,7 @@
     "@ng-icons/material-icons": "^30.4.0",
     "@tauri-apps/api": "^1.6.0",
     "epubjs": "^0.3.93",
+    "pdfjs-dist": "^4.10.38",
     "rxjs": "^7.8.1",
     "tslib": "^2.5.0",
     "uint8array-extras": "^1.4.0",

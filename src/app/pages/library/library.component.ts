@@ -9,6 +9,7 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
   heroBookOpen, 
   heroPlus, 
+  heroCog,
   heroMagnifyingGlass, 
   heroTrash, 
   heroEllipsisVertical,
@@ -16,15 +17,27 @@ import {
   heroCheck,
   heroXMark
 } from '@ng-icons/heroicons/outline';
+import { TitleBarComponent } from "../../components/title-bar.component";
+import { LoadingScreenComponent } from "../../components/loading-screen.component";
+import { LibrarySettingsModalComponent } from "../../components/library-settings-modal.component";
 
 @Component({
   selector: "app-library",
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, NgIconComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule, 
+    NgIconComponent,
+    TitleBarComponent,
+    LoadingScreenComponent,
+    LibrarySettingsModalComponent
+  ],
   providers: [
     provideIcons({ 
       heroBookOpen, 
       heroPlus, 
+      heroCog,
       heroMagnifyingGlass, 
       heroTrash, 
       heroEllipsisVertical,
@@ -35,6 +48,15 @@ import {
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <!-- Title Bar -->
+      <app-title-bar></app-title-bar>
+
+      <!-- Loading Screen -->
+      <app-loading-screen 
+        [show]="loading"
+        [message]="loadingMessage">
+      </app-loading-screen>
+
       <!-- Header -->
       <header class="bg-white dark:bg-gray-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -43,28 +65,34 @@ import {
             <div class="flex items-center space-x-4">
               <button
                 (click)="importBook()"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                 [class.opacity-50]="multiSelect"
                 [disabled]="multiSelect"
               >
-                <ng-icon name="heroPlus" class="h-5 w-5 mr-2"></ng-icon>
-                Import Book
+                <ng-icon 
+                  name="heroPlus" 
+                  class="h-6 w-6 text-gray-600 dark:text-gray-300">
+                </ng-icon>
               </button>
+              
               <button
                 (click)="toggleMultiSelect()"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                [class.bg-blue-600]="multiSelect"
-                [class.text-white]="multiSelect"
-                [class.bg-white]="!multiSelect"
-                [class.dark:bg-gray-700]="!multiSelect"
-                [class.text-gray-700]="!multiSelect"
-                [class.dark:text-gray-200]="!multiSelect"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <ng-icon 
-                  [name]="multiSelect ? 'heroXMark' : 'heroCheck'" 
-                  class="h-5 w-5 mr-2">
+                  [name]="multiSelect ? 'heroXMark' : 'heroCheck'"
+                  class="h-6 w-6 text-gray-600 dark:text-gray-300">
                 </ng-icon>
-                {{ multiSelect ? "Cancel Selection" : "Select Books" }}
+              </button>
+
+              <button
+                (click)="showSettings = true"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <ng-icon 
+                  name="heroCog"
+                  class="h-6 w-6 text-gray-600 dark:text-gray-300">
+                </ng-icon>
               </button>
             </div>
           </div>
@@ -157,7 +185,6 @@ import {
                   </ng-icon>
                 </div>
               </div>
-
 
               <!-- Book Info -->
               <div class="p-4">
@@ -351,6 +378,12 @@ import {
           </div>
         </div>
       </div>
+
+      <!-- Settings Modal -->
+      <app-library-settings-modal
+        *ngIf="showSettings"
+        (close)="showSettings = false"
+      ></app-library-settings-modal>
     </div>
   `,
 })
@@ -362,10 +395,19 @@ export class LibraryComponent implements OnInit {
   multiSelect = false;
   selectedBooks = new Set<string>();
   loading = false;
+  loadingMessage = '';
+  showSettings = false;
 
-  constructor(private bookService: BookService, private router: Router) {}
+  constructor(
+    private bookService: BookService, 
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    this.bookService.loading$.subscribe(loading => {
+      this.loading = loading;
+    });
+
     this.bookService.books$.subscribe((books) => {
       this.books = books;
       this.updateRecentBooks();
@@ -463,16 +505,14 @@ export class LibraryComponent implements OnInit {
   }
 
   async importBook() {
-    this.loading = true;
+    this.loadingMessage = 'Importing books...';
     try {
-      const book = await this.bookService.importBook();
-      if (book) {
-        console.log("Book imported successfully:", book.title);
+      const books = await this.bookService.importBooks();
+      if (books.length > 0) {
+        console.log(`${books.length} books imported successfully`);
       }
     } catch (error) {
-      console.error("Error importing book:", error);
-    } finally {
-      this.loading = false;
+      console.error("Error importing books:", error);
     }
   }
 

@@ -18,6 +18,16 @@
   background: transparent;
 }
 
+.titlebar-drag-region {
+  -webkit-app-region: drag;
+  flex: 1;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+
 ::-webkit-scrollbar-thumb {
   background-color: rgba(156, 163, 175, 0.5);
   border-radius: 4px;

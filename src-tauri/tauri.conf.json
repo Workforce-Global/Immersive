@@ -12,8 +12,11 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
+      "all": true,
       "dialog": {
+        "all": true
+      },
+      "window": {
         "all": true
       },
       "fs": {
@@ -85,8 +88,8 @@
         "fullscreen": false,
         "height": 768,
         "resizable": true,
-        "decorations": true,
-        "transparent": true,
+        "decorations": false,
+        "transparent": false,
         "title": "Immersive",
         "width": 1336
       }

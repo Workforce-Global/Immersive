@@ -31,7 +31,7 @@ import { appWindow } from '@tauri-apps/api/window';
         <div class="flex items-center space-x-2">
           <button 
             (click)="navigateBack()"
-            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
           >
             <ng-icon
               name="heroChevronLeft"
@@ -40,7 +40,7 @@ import { appWindow } from '@tauri-apps/api/window';
           </button>
           <button 
             (click)="navigateHome()"
-            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
           >
             <ng-icon
               name="heroHome"
@@ -61,7 +61,7 @@ import { appWindow } from '@tauri-apps/api/window';
       <div class="flex items-center">
         <button
           (click)="minimizeWindow()"
-          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
         >
           <ng-icon
             name="heroMinus"
@@ -70,16 +70,16 @@ import { appWindow } from '@tauri-apps/api/window';
         </button>
         <button
           (click)="maximizeWindow()"
-          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
         >
           <ng-icon
-            name="heroSquares2X2"
+            name="heroSquares2x2"
             class="w-4 h-4 text-gray-600 dark:text-gray-300">
           </ng-icon>
         </button>
         <button
           (click)="closeWindow()"
-          class="p-2.5 hover:bg-red-500 focus:outline-none group"
+          class="p-2.5 hover:bg-red-500 focus:outline-none group no-drag"
         >
           <ng-icon
             name="heroXMark"
@@ -88,22 +88,37 @@ import { appWindow } from '@tauri-apps/api/window';
         </button>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .titlebar-drag-region {
+      -webkit-app-region: drag;
+      flex: 1;
+    }
+    .no-drag {
+      -webkit-app-region: no-drag;
+    }
+  `]
 })
 export class TitleBarComponent {
   private router = inject(Router);
 
   async minimizeWindow() {
-    await appWindow.minimize();
+    if (window.__TAURI__) {
+      await appWindow.minimize();
+    }
   }
 
   async maximizeWindow() {
-    const isMaximized = await appWindow.isMaximized();
-    isMaximized ? await appWindow.unmaximize() : await appWindow.maximize();
+    if (window.__TAURI__) {
+      const isMaximized = await appWindow.isMaximized();
+      isMaximized ? await appWindow.unmaximize() : await appWindow.maximize();
+    }
   }
 
   async closeWindow() {
-    await appWindow.close();
+    if (window.__TAURI__) {
+      await appWindow.close();
+    }
   }
 
   navigateBack() {

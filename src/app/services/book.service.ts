@@ -10,6 +10,9 @@ import {
 } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api/tauri";
 import { BehaviorSubject } from "rxjs";
+import * as pdfjsLib from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export interface Book {
   id: string;
@@ -17,6 +20,7 @@ export interface Book {
   author: string;
   coverUrl?: string;
   path: string;
+  format: 'epub' | 'pdf';
   progress: number;
   bookmarks: Bookmark[];
   highlights: Highlight[];
@@ -45,6 +49,10 @@ export interface Highlight {
 export class BookService {
   private books = new BehaviorSubject<Book[]>([]);
   books$ = this.books.asObservable();
+  private loading = new BehaviorSubject<boolean>(false);
+  loading$ = this.loading.asObservable();
+  private searchResults = new BehaviorSubject<Book[]>([]);
+  searchResults$ = this.searchResults.asObservable();
 
   constructor() {
     this.initializeStorage();
@@ -52,7 +60,6 @@ export class BookService {
 
   private async initializeStorage() {
     try {
-      // Create directories using BaseDirectory.AppData
       await createDir("books", { dir: BaseDirectory.AppData, recursive: true });
       await createDir("metadata", {
         dir: BaseDirectory.AppData,
@@ -66,29 +73,29 @@ export class BookService {
 
   private async loadBooks() {
     try {
+      this.loading.next(true);
       const metadataFiles = await readDir("metadata", {
         dir: BaseDirectory.AppData,
       });
       const books: Book[] = [];
 
-      for (const file of metadataFiles) {
-        if (file.name?.endsWith(".json")) {
+      // Load metadata in parallel
+      const bookPromises = metadataFiles
+        .filter(file => file.name?.endsWith('.json'))
+        .map(async file => {
           try {
             const content = await readBinaryFile(`metadata/${file.name}`, {
               dir: BaseDirectory.AppData,
             });
-            const book = JSON.parse(new TextDecoder().decode(content));
-
-            // Don't try to load cover here - we'll handle it in the component
-            books.push(book);
-          } catch (parseError) {
-            console.error(
-              `Failed to parse book metadata: ${file.name}`,
-              parseError
-            );
+            return JSON.parse(new TextDecoder().decode(content));
+          } catch (error) {
+            console.error(`Failed to parse book metadata: ${file.name}`, error);
+            return null;
           }
-        }
-      }
+        });
+
+      const loadedBooks = await Promise.all(bookPromises);
+      books.push(...loadedBooks.filter(book => book !== null));
 
       this.books.next(
         books.sort(
@@ -98,110 +105,192 @@ export class BookService {
       );
     } catch (error) {
       console.error("Failed to load books:", error);
+    } finally {
+      this.loading.next(false);
     }
   }
 
-  async importBook(): Promise<Book | null> {
+  searchLibrary(query: string) {
+    if (!query.trim()) {
+      this.searchResults.next([]);
+      return;
+    }
+
+    const searchTerm = query.toLowerCase();
+    const results = this.books.value.filter(book => 
+      book.title.toLowerCase().includes(searchTerm) ||
+      book.author.toLowerCase().includes(searchTerm)
+    );
+    
+    this.searchResults.next(results);
+  }
+
+  async searchBookContent(book: Book, query: string): Promise<any[]> {
+    if (book.format === 'pdf') {
+      return this.searchPdfContent(book.path, query);
+    } else {
+      // For EPUB, we'll use the existing search functionality
+      return [];
+    }
+  }
+
+  private async searchPdfContent(path: string, query: string): Promise<any[]> {
     try {
-      console.log("Opening file dialog...");
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: "EPUB", extensions: ["epub"] }],
-      });
+      const data = await readBinaryFile(path);
+      const pdf = await pdfjsLib.getDocument(data).promise;
+      const maxPages = pdf.numPages;
+      const searchResults = [];
 
-      if (!selected || Array.isArray(selected)) return null;
+      for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const text = textContent.items.map((item: any) => item.str).join(' ');
 
-      const fileName = selected.split(/[\\/]/).pop() || "unknown.epub";
-      const existingBooks = this.books.value; // Get current books
-
-      // Check if a book with the same title already exists
-      const isDuplicate = existingBooks.some(
-        (b) =>
-          b.path === selected ||
-          b.title.toLowerCase() === fileName.toLowerCase()
-      );
-      if (isDuplicate) {
-        console.warn(`Book "${fileName}" is already imported.`);
-        return null;
+        if (text.toLowerCase().includes(query.toLowerCase())) {
+          searchResults.push({
+            page: pageNum,
+            text: this.extractSnippet(text, query),
+          });
+        }
       }
 
-      const bookId = crypto.randomUUID();
-      const bookStoragePath = `books/${bookId}.epub`;
+      return searchResults;
+    } catch (error) {
+      console.error('Error searching PDF:', error);
+      return [];
+    }
+  }
 
-      console.log(`Selected file: ${fileName}, storing as ${bookStoragePath}`);
+  private extractSnippet(text: string, query: string, contextLength = 50): string {
+    const index = text.toLowerCase().indexOf(query.toLowerCase());
+    if (index === -1) return '';
 
-      const bookContent = await readBinaryFile(selected);
-      await writeBinaryFile(bookStoragePath, bookContent, {
-        dir: BaseDirectory.AppData,
+    const start = Math.max(0, index - contextLength);
+    const end = Math.min(text.length, index + query.length + contextLength);
+    return text.slice(start, end);
+  }
+
+  async importBooks(): Promise<Book[]> {
+    try {
+      this.loading.next(true);
+      const selected = await open({
+        multiple: true,
+        filters: [{ 
+          name: "Books", 
+          extensions: ["epub", "pdf"] 
+        }],
       });
 
-      // Use Rust API to extract metadata and cover
-      console.log("Invoking Rust API for metadata extraction...");
-      // The Rust function is expecting a full path, so we need to construct it
-      // or modify the Rust function to work with BaseDirectory
+      if (!selected || !Array.isArray(selected)) return [];
 
-      // Get the full path to the stored book for the Rust function
-      const bookPath =
-        (await invoke("check_storage_path", { handle: {} })) +
-        `/${bookId}.epub`;
+      const existingBooks = this.books.value;
+      const newBooks: Book[] = [];
 
-      const response: { title: string; author: string; cover?: string } =
-        await invoke("extract_metadata", {
-          filePath: bookPath,
+      const importPromises = selected.map(async (filePath) => {
+        const fileName = filePath.split(/[\\/]/).pop() || "unknown";
+        const format = fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'epub';
+
+        const isDuplicate = existingBooks.some(
+          (b) =>
+            b.path === filePath ||
+            b.title.toLowerCase() === fileName.toLowerCase()
+        );
+        if (isDuplicate) {
+          console.warn(`Book "${fileName}" is already imported.`);
+          return null;
+        }
+
+        const bookId = crypto.randomUUID();
+        const bookStoragePath = `books/${bookId}.${format}`;
+
+        const bookContent = await readBinaryFile(filePath);
+        await writeBinaryFile(bookStoragePath, bookContent, {
+          dir: BaseDirectory.AppData,
         });
 
-      console.log("Rust API response:", response);
+        const bookPath = (await invoke("check_storage_path", { handle: {} })) +
+          `/${bookId}.${format}`;
 
-      const book: Book = {
-        id: bookId,
-        title: response.title,
-        author: response.author,
-        path: bookPath,
-        coverUrl: response.cover, // The cover is now directly a Base64 string
-        progress: 0,
-        bookmarks: [],
-        highlights: [],
-        lastRead: new Date(),
-      };
+        let metadata: { title: string; author: string; cover?: string };
+        
+        if (format === 'pdf') {
+          metadata = await this.extractPdfMetadata(bookContent);
+        } else {
+          metadata = await invoke("extract_metadata", {
+            filePath: bookPath,
+          });
+        }
 
-      await this.saveBookMetadata(book);
+        const book: Book = {
+          id: bookId,
+          title: metadata.title || fileName,
+          author: metadata.author || 'Unknown Author',
+          path: bookPath,
+          format,
+          coverUrl: metadata.cover,
+          progress: 0,
+          bookmarks: [],
+          highlights: [],
+          lastRead: new Date(),
+        };
 
-      // ✅ Correctly update books without duplication issues
-      this.books.next([book, ...existingBooks]);
+        await this.saveBookMetadata(book);
+        return book;
+      });
 
-      return book;
+      const importedBooks = await Promise.all(importPromises);
+      newBooks.push(...importedBooks.filter(book => book !== null));
+
+      this.books.next([...newBooks, ...existingBooks]);
+      return newBooks;
+
     } catch (error) {
-      console.error("Failed to import book:", error);
-      return null;
+      console.error("Failed to import books:", error);
+      return [];
+    } finally {
+      this.loading.next(false);
+    }
+  }
+
+  private async extractPdfMetadata(data: Uint8Array) {
+    try {
+      const pdf = await pdfjsLib.getDocument(data).promise;
+      const metadata = await pdf.getMetadata();
+      const info = metadata.info as Record<string, any>;
+      
+      return {
+        title: info?.["Title"] || 'Untitled PDF',
+        author: info?.["Author"] || 'Unknown Author',
+      };
+    } catch (error) {
+      console.error('Error extracting PDF metadata:', error);
+      return {
+        title: 'Untitled PDF',
+        author: 'Unknown Author',
+      };
     }
   }
 
   async loadCover(book: Book) {
-    // If coverUrl is already a Base64 string (starts with "data:"), we don't need to load it
     if (book.coverUrl && book.coverUrl.startsWith("data:")) {
       return;
     }
 
     try {
-      // The Rust function expects a full path
-      const coverPath = book.path.replace(".epub", ".cover.jpg");
+      const coverPath = book.path.replace(`.${book.format}`, ".cover.jpg");
 
-      // Use Rust API to get cover as Base64
       const coverBase64 = await invoke<string>("get_cover_base64", {
         filePath: coverPath,
       });
 
-      // Update the book with the Base64 image
       book.coverUrl = coverBase64;
 
-      // Update the book collection
       const updatedBooks = this.books.value.map((b) =>
         b.id === book.id ? { ...b, coverUrl: coverBase64 } : b
       );
       this.books.next(updatedBooks);
     } catch (error) {
       console.error(`Failed to load cover for book ${book.id}:`, error);
-      // Don't set to undefined - keep the existing value in case of temporary error
     }
   }
 
@@ -223,7 +312,6 @@ export class BookService {
     book.lastRead = new Date();
     await this.saveBookMetadata(book);
 
-    // ✅ Ensure books observable updates properly
     const updatedBooks = this.books.value.map((b) =>
       b.id === book.id ? book : b
     );
@@ -233,7 +321,6 @@ export class BookService {
   async readBookFile(path: string): Promise<ArrayBuffer> {
     try {
       const content = await readBinaryFile(path);
-      // Convert Uint8Array to ArrayBuffer with proper typing
       return content.buffer.slice(
         content.byteOffset,
         content.byteOffset + content.byteLength
@@ -267,13 +354,11 @@ export class BookService {
 
   async deleteBook(book: Book) {
     try {
-      // Get just the bookId from the path
       const bookId = book.id;
 
-      // Delete all related files
-      await removeFile(`books/${bookId}.epub`, {
+      await removeFile(`books/${bookId}.${book.format}`, {
         dir: BaseDirectory.AppData,
-      }).catch((err) => console.warn("Failed to delete EPUB file:", err));
+      }).catch((err) => console.warn("Failed to delete book file:", err));
 
       await removeFile(`metadata/${bookId}.json`, {
         dir: BaseDirectory.AppData,
