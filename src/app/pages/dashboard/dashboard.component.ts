@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { BookService, Book } from "../../services/book.service";
 import { Router } from "@angular/router";
+import { FormsModule } from "@angular/forms";
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
   heroBookOpen,
@@ -11,7 +12,6 @@ import {
   heroSquares2x2
 } from '@ng-icons/heroicons/outline';
 import { TitleBarComponent } from "../../components/title-bar.component";
-import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "app-dashboard",
@@ -33,10 +33,10 @@ import { FormsModule } from "@angular/forms";
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <app-title-bar></app-title-bar>
+      <app-title-bar class="titlebar"></app-title-bar>
 
       <!-- Current Book Section -->
-      <div *ngIf="currentBook" class="relative">
+      <div *ngIf="currentBook" class="relative content-below-titlebar">
         <!-- Background Image (blurred) -->
         <div class="absolute inset-0 overflow-hidden">
           <img
@@ -91,7 +91,7 @@ import { FormsModule } from "@angular/forms";
                 (click)="continueReading(currentBook)"
                 class="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Keep reading
+                Continue reading
               </button>
             </div>
           </div>
@@ -250,14 +250,11 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.bookService.books$.subscribe(books => {
       if (books.length > 0) {
-        // Get current book (most recently read)
-        this.currentBook = [...books]
-          .sort((a, b) => new Date(b.lastRead).getTime() - new Date(a.lastRead).getTime())[0];
+        // Get the most recently read book for the hero section
+        this.currentBook = books[0]; // Books are already sorted by lastRead
 
-        // Get recent books (excluding current book)
-        this.recentBooks = [...books]
-          .sort((a, b) => new Date(b.lastRead).getTime() - new Date(a.lastRead).getTime())
-          .slice(1, 6);
+        // Get the next 4 most recently read books (excluding current book)
+        this.recentBooks = books.slice(1, 5);
       }
     });
   }
@@ -272,7 +269,7 @@ export class DashboardComponent implements OnInit {
         break;
       case 'lastRead':
         this.recentBooks.sort((a, b) => 
-          new Date(b.lastRead).getTime() - new Date(a.lastRead).getTime()
+          b.lastRead.getTime() - a.lastRead.getTime()
         );
         break;
     }

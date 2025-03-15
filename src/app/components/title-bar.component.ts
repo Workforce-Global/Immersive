@@ -90,12 +90,25 @@ import { appWindow } from '@tauri-apps/api/window';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      -webkit-app-region: drag;
+      app-region: drag;
+    }
+    
     .titlebar-drag-region {
       -webkit-app-region: drag;
-      flex: 1;
+      app-region: drag;
     }
+    
     .no-drag {
       -webkit-app-region: no-drag;
+      app-region: no-drag;
     }
   `]
 })

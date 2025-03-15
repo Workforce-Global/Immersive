@@ -55,59 +55,79 @@ export class BookService {
   loading$ = this.loading.asObservable();
   private searchResults = new BehaviorSubject<Book[]>([]);
   searchResults$ = this.searchResults.asObservable();
+  private metadataCache = new Map<string, Book>();
+  private initialized = false;
 
   constructor() {
     this.initializeStorage();
   }
 
   private async initializeStorage() {
+    if (this.initialized) return;
+    
     try {
+      this.loading.next(true);
       await createDir("books", { dir: BaseDirectory.AppData, recursive: true });
       await createDir("metadata", {
         dir: BaseDirectory.AppData,
         recursive: true,
       });
       await this.loadBooks();
+      this.initialized = true;
     } catch (error) {
       console.error("Failed to initialize storage:", error);
+    } finally {
+      this.loading.next(false);
     }
   }
 
   private async loadBooks() {
     try {
-      this.loading.next(true);
       const metadataFiles = await readDir("metadata", {
         dir: BaseDirectory.AppData,
       });
+
+      // Load metadata files in parallel with a concurrency limit
+      const batchSize = 5;
       const books: Book[] = [];
+      
+      for (let i = 0; i < metadataFiles.length; i += batchSize) {
+        const batch = metadataFiles.slice(i, i + batchSize);
+        const batchPromises = batch
+          .filter(file => file.name?.endsWith('.json'))
+          .map(async file => {
+            try {
+              if (this.metadataCache.has(file.name!)) {
+                return this.metadataCache.get(file.name!);
+              }
 
-      const bookPromises = metadataFiles
-        .filter(file => file.name?.endsWith('.json'))
-        .map(async file => {
-          try {
-            const content = await readBinaryFile(`metadata/${file.name}`, {
-              dir: BaseDirectory.AppData,
-            });
-            return JSON.parse(new TextDecoder().decode(content));
-          } catch (error) {
-            console.error(`Failed to parse book metadata: ${file.name}`, error);
-            return null;
-          }
-        });
+              const content = await readBinaryFile(`metadata/${file.name}`, {
+                dir: BaseDirectory.AppData,
+              });
+              const book = JSON.parse(new TextDecoder().decode(content));
+              
+              // Ensure lastRead is a Date object
+              book.lastRead = new Date(book.lastRead);
+              
+              this.metadataCache.set(file.name!, book);
+              return book;
+            } catch (error) {
+              console.error(`Failed to parse book metadata: ${file.name}`, error);
+              return null;
+            }
+          });
 
-      const loadedBooks = await Promise.all(bookPromises);
-      books.push(...loadedBooks.filter(book => book !== null));
+        const batchResults = await Promise.all(batchPromises);
+        books.push(...batchResults.filter(book => book !== null));
+      }
 
-      this.books.next(
-        books.sort(
-          (a, b) =>
-            new Date(b.lastRead).getTime() - new Date(a.lastRead).getTime()
-        )
-      );
+      // Sort by last read date
+      books.sort((a, b) => b.lastRead.getTime() - a.lastRead.getTime());
+      
+      this.books.next(books);
     } catch (error) {
       console.error("Failed to load books:", error);
-    } finally {
-      this.loading.next(false);
+      this.books.next([]);
     }
   }
 
@@ -310,28 +330,55 @@ export class BookService {
     }
   }
 
+  async readBookFile(path: string): Promise<ArrayBuffer> {
+    try {
+      if (!path) {
+        throw new Error("Invalid book path");
+      }
+
+      let retries = 3;
+      let lastError;
+      let delay = 1000;
+
+      while (retries > 0) {
+        try {
+          const content = await readBinaryFile(path);
+          const uint8Array = new Uint8Array(content);
+          return uint8Array.buffer.slice(
+            uint8Array.byteOffset,
+            uint8Array.byteOffset + uint8Array.byteLength
+          );
+        } catch (error) {
+          lastError = error;
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2; // Exponential backoff
+          }
+        }
+      }
+
+      throw lastError;
+    } catch (error) {
+      console.error("Failed to read book file:", error);
+      throw new Error(`Could not read book content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   async updateBookProgress(book: Book, progress: number) {
     book.progress = progress;
     book.lastRead = new Date();
     await this.saveBookMetadata(book);
 
+    // Update the books list to trigger the dashboard update
     const updatedBooks = this.books.value.map((b) =>
-      b.id === book.id ? book : b
+      b.id === book.id ? { ...book } : b
     );
+    
+    // Sort by last read date
+    updatedBooks.sort((a, b) => b.lastRead.getTime() - a.lastRead.getTime());
+    
     this.books.next(updatedBooks);
-  }
-
-  async readBookFile(path: string): Promise<ArrayBuffer> {
-    try {
-      const content = await readBinaryFile(path);
-      return content.buffer.slice(
-        content.byteOffset,
-        content.byteOffset + content.byteLength
-      ) as ArrayBuffer;
-    } catch (error) {
-      console.error("Failed to read book file:", error);
-      throw new Error("Could not read book content");
-    }
   }
 
   async addHighlight(

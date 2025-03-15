@@ -3,10 +3,23 @@
 @tailwind utilities;
 @tailwindcss /aspect-ratio;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwindcss /aspect-ratio;
+/* Title bar styles */
+.titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: white;
+}
+
+.dark .titlebar {
+  background: #1a1a1a;
+}
+
+.content-below-titlebar {
+  padding-top: 2.5rem; /* 40px to match title bar height */
+}
 
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
@@ -20,13 +33,12 @@
 
 .titlebar-drag-region {
   -webkit-app-region: drag;
-  flex: 1;
+  app-region: drag;
 }
 
 .no-drag {
   -webkit-app-region: no-drag;
 }
-
 
 ::-webkit-scrollbar-thumb {
   background-color: rgba(156, 163, 175, 0.5);
@@ -56,17 +68,6 @@
 
 .dark * {
   scrollbar-color: rgba(209, 213, 219, 0.3) transparent;
-}
-
-/* Title bar styles */
-.titlebar-drag-region {
-  -webkit-app-region: drag;
-  app-region: drag;
-}
-
-button, input, select, a {
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
 }
 
 /* Two-page layout styles */
@@ -157,26 +158,14 @@ html, body {
   }
 }
 
-/* Make the app draggable from anywhere */
-.titlebar-drag-region {
-  -webkit-app-region: drag;
-  app-region: drag;
-}
-
-/* But not from buttons and interactive elements */
-button, input, select, a {
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
-}
-
 /* Ensure full-screen UI without white space */
 html, body {
   margin: 0;
   padding: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* Prevent default body scrolling */
-  background-color: #1a1a1a; /* Match dark theme */
+  overflow: hidden;
+  background-color: #1a1a1a;
 }
 
 /* Scroll container that holds all content */
@@ -184,6 +173,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  padding-top: 2.5rem; /* Match title bar height */
 }
 
 /* Angular app-root styling */
@@ -227,7 +217,7 @@ app-root {
   color: #5f4b32;
 }
 
-/* Scrolled view styles for additional smooth scrolling behavior */
+/* Scrolled view styles */
 .epub-container[data-layout="scrolled"] {
   scroll-behavior: smooth;
 }
@@ -294,4 +284,35 @@ app-root {
 
 .delay-300 {
   animation-delay: 0.3s;
+}
+
+/* Sidebar styles */
+.library-sidebar {
+  position: fixed;
+  left: 0;
+  top: 2.5rem; /* Match title bar height */
+  bottom: 0;
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 40;
+}
+
+.dark .library-sidebar {
+  background: #1a1a1a;
+  border-right-color: #374151;
+}
+
+.library-sidebar.open {
+  transform: translateX(0);
+}
+
+.library-content {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.library-content.sidebar-open {
+  margin-left: 280px;
 }
