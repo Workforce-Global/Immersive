@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { Router } from "@angular/router";
 import { TitleBarComponent } from "../../components/title-bar.component";
 
 @Component({
     selector: "app-splash",
-    imports: [CommonModule, TitleBarComponent],
+    imports: [TitleBarComponent],
     template: `
     <div class="min-h-screen bg-gray-900 flex flex-col">
       <app-title-bar></app-title-bar>

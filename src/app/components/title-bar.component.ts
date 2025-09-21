@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
   heroMinus, 
@@ -13,7 +13,7 @@ import { appWindow } from '@tauri-apps/api/window';
 
 @Component({
     selector: 'app-title-bar',
-    imports: [CommonModule, NgIconComponent],
+    imports: [NgIconComponent],
     providers: [
         provideIcons({
             heroMinus,

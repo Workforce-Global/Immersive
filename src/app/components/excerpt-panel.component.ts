@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ExcerptService, Excerpt } from '../services/excerpt.service';
 
 @Component({
     selector: 'app-excerpt-panel',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     template: `
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md">
       <div class="flex justify-between items-start mb-4">

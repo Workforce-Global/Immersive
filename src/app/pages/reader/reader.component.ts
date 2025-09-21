@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TitleBarComponent } from "../../components/title-bar.component";
@@ -31,17 +31,16 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
 @Component({
     selector: "app-reader",
     imports: [
-        CommonModule,
-        FormsModule,
-        TitleBarComponent,
-        TocPanelComponent,
-        SettingsModalComponent,
-        SearchPanelComponent,
-        LookupPanelComponent,
-        ExcerptPanelComponent,
-        NgIconComponent,
-        LoadingScreenComponent
-    ],
+    FormsModule,
+    TitleBarComponent,
+    TocPanelComponent,
+    SettingsModalComponent,
+    SearchPanelComponent,
+    LookupPanelComponent,
+    ExcerptPanelComponent,
+    NgIconComponent,
+    LoadingScreenComponent
+],
     providers: [
         provideIcons({
             heroChevronLeft,
@@ -55,27 +54,27 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
     template: `
     <div class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       <!-- Loading Screen -->
-      <app-loading-screen 
+      <app-loading-screen
         [show]="loading"
         message="Loading book...">
       </app-loading-screen>
-
+    
       <!-- Title Bar -->
       <app-title-bar></app-title-bar>
-
+    
       <div class="flex flex-1 overflow-hidden">
         <!-- TOC Sidebar -->
         <div
           [class.w-64]="showToc"
           [class.w-0]="!showToc"
           class="transition-all duration-300 ease-in-out overflow-hidden border-r border-gray-200 dark:border-gray-700"
-        >
+          >
           <app-toc-panel
             [toc]="tocItems"
             (navigate)="navigateToLocation($event)"
           ></app-toc-panel>
         </div>
-
+    
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
           <!-- Top Bar -->
@@ -84,7 +83,7 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
               <button
                 (click)="showToc = !showToc"
                 class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+                >
                 <ng-icon
                   name="heroBookOpen"
                   class="w-5 h-5 text-gray-600 dark:text-gray-300">
@@ -94,12 +93,12 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
                 {{ currentBook?.title }}
               </h1>
             </div>
-
+    
             <div class="flex items-center space-x-2">
               <button
                 (click)="showSearch = !showSearch"
                 class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+                >
                 <ng-icon
                   name="heroMagnifyingGlass"
                   class="w-5 h-5 text-gray-600 dark:text-gray-300">
@@ -108,7 +107,7 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
               <button
                 (click)="showSettings = true"
                 class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+                >
                 <ng-icon
                   name="heroCog"
                   class="w-5 h-5 text-gray-600 dark:text-gray-300">
@@ -116,22 +115,22 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
               </button>
             </div>
           </div>
-
+    
           <!-- Reader Area -->
           <div class="flex-1 relative overflow-hidden">
-            <div 
-              #readerContainer 
+            <div
+              #readerContainer
               [class.two-page-layout]="isWideScreen && !isSinglePage"
               [class.first-page]="isFirstPage"
               class="absolute inset-0">
             </div>
-
+    
             <!-- Navigation Controls -->
             <div class="absolute inset-y-0 left-0 flex items-center">
               <button
                 (click)="prevPage()"
                 class="p-4 bg-gray-800/20 hover:bg-gray-800/40 text-white rounded-r-lg transition-colors"
-              >
+                >
                 <ng-icon name="heroChevronLeft" class="w-6 h-6"></ng-icon>
               </button>
             </div>
@@ -139,12 +138,12 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
               <button
                 (click)="nextPage()"
                 class="p-4 bg-gray-800/20 hover:bg-gray-800/40 text-white rounded-l-lg transition-colors"
-              >
+                >
                 <ng-icon name="heroChevronRight" class="w-6 h-6"></ng-icon>
               </button>
             </div>
           </div>
-
+    
           <!-- Progress Bar -->
           <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
             <div class="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded">
@@ -155,70 +154,76 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
             </div>
           </div>
         </div>
-
+    
         <!-- Search Sidebar -->
         <div
           [class.w-80]="showSearch"
           [class.w-0]="!showSearch"
           class="transition-all duration-300 ease-in-out overflow-hidden border-l border-gray-200 dark:border-gray-700"
-        >
+          >
           <app-search-panel
             [book]="book"
             (navigate)="navigateToLocation($event)"
           ></app-search-panel>
         </div>
       </div>
-
+    
       <!-- Settings Modal -->
-      <app-settings-modal
-        *ngIf="showSettings"
-        (close)="showSettings = false"
-      ></app-settings-modal>
-
+      @if (showSettings) {
+        <app-settings-modal
+          (close)="showSettings = false"
+        ></app-settings-modal>
+      }
+    
       <!-- Floating Panels -->
       <div class="fixed right-8 top-24 space-y-4 z-50">
-        <div *ngIf="showLookup">
-          <app-lookup-panel></app-lookup-panel>
-        </div>
-
-        <div *ngIf="showExcerpt">
-          <app-excerpt-panel
-            [bookId]="bookId"
-            [text]="selectedText"
-            [cfi]="selectedCfi"
-            (close)="showExcerpt = false"
-          ></app-excerpt-panel>
-        </div>
+        @if (showLookup) {
+          <div>
+            <app-lookup-panel></app-lookup-panel>
+          </div>
+        }
+    
+        @if (showExcerpt) {
+          <div>
+            <app-excerpt-panel
+              [bookId]="bookId"
+              [text]="selectedText"
+              [cfi]="selectedCfi"
+              (close)="showExcerpt = false"
+            ></app-excerpt-panel>
+          </div>
+        }
       </div>
-
+    
       <!-- Context Menu -->
-      <div
-        *ngIf="showContextMenu"
-        [style.top.px]="contextMenuY"
-        [style.left.px]="contextMenuX"
-        class="fixed bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 min-w-[160px] z-50"
-      >
-        <button
-          (click)="lookupSelection()"
-          class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          Look Up
-        </button>
-        <button
-          (click)="excerptSelection()"
-          class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          Save Excerpt
-        </button>
-        <button
-          (click)="highlightSelection()"
-          class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          Highlight
-        </button>
-      </div>
+      @if (showContextMenu) {
+        <div
+          [style.top.px]="contextMenuY"
+          [style.left.px]="contextMenuX"
+          class="fixed bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 min-w-[160px] z-50"
+          >
+          <button
+            (click)="lookupSelection()"
+            class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+            Look Up
+          </button>
+          <button
+            (click)="excerptSelection()"
+            class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+            Save Excerpt
+          </button>
+          <button
+            (click)="highlightSelection()"
+            class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+            Highlight
+          </button>
+        </div>
+      }
     </div>
-  `
+    `
 })
 export class ReaderComponent implements OnInit {
   @ViewChild("readerContainer") readerContainer!: ElementRef;
@@ -271,7 +276,7 @@ export class ReaderComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const navigation = this.router.getCurrentNavigation();
+    const navigation = this.router.currentNavigation();
     const state = navigation?.extras.state as {
       bookData: Book;
       epubPath: string;

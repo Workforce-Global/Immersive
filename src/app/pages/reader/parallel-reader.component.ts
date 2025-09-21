@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReaderComponent } from './reader.component';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-parallel-reader',
-    imports: [CommonModule, ReaderComponent],
+    imports: [ReaderComponent],
     template: `
     <div class="h-screen flex">
       <!-- Left book -->
