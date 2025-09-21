@@ -30,7 +30,7 @@ import { appWindow } from '@tauri-apps/api/window';
         <div class="flex items-center space-x-2">
           <button 
             (click)="navigateBack()"
-            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
+            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden no-drag"
           >
             <ng-icon
               name="heroChevronLeft"
@@ -39,7 +39,7 @@ import { appWindow } from '@tauri-apps/api/window';
           </button>
           <button 
             (click)="navigateHome()"
-            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
+            class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden no-drag"
           >
             <ng-icon
               name="heroHome"
@@ -60,7 +60,7 @@ import { appWindow } from '@tauri-apps/api/window';
       <div class="flex items-center">
         <button
           (click)="minimizeWindow()"
-          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
+          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden no-drag"
         >
           <ng-icon
             name="heroMinus"
@@ -69,7 +69,7 @@ import { appWindow } from '@tauri-apps/api/window';
         </button>
         <button
           (click)="maximizeWindow()"
-          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none no-drag"
+          class="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden no-drag"
         >
           <ng-icon
             name="heroSquares2x2"
@@ -78,7 +78,7 @@ import { appWindow } from '@tauri-apps/api/window';
         </button>
         <button
           (click)="closeWindow()"
-          class="p-2.5 hover:bg-red-500 focus:outline-none group no-drag"
+          class="p-2.5 hover:bg-red-500 focus:outline-hidden group no-drag"
         >
           <ng-icon
             name="heroXMark"

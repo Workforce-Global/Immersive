@@ -48,7 +48,7 @@ import { TitleBarComponent } from "../../components/title-bar.component";
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <div class="flex items-start space-x-8">
                 <!-- Book Cover -->
-                <div class="flex-shrink-0 w-48">
+                <div class="shrink-0 w-48">
                   <img
                     [src]="currentBook.coverUrl"
                     [alt]="currentBook.title"
@@ -84,7 +84,7 @@ import { TitleBarComponent } from "../../components/title-bar.component";
                     <!-- Action Button -->
                     <button
                       (click)="continueReading(currentBook)"
-                      class="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      class="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-xs text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
                       Continue reading
                     </button>
@@ -139,7 +139,7 @@ import { TitleBarComponent } from "../../components/title-bar.component";
                 class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
                 @for (book of recentBooks; track book) {
                   <div
-                    class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                    class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden"
                     (click)="openBook(book)">
                     <div class="aspect-w-2 aspect-h-3 bg-gray-200 dark:bg-gray-700">
                       @if (book.coverUrl) {
@@ -178,9 +178,9 @@ import { TitleBarComponent } from "../../components/title-bar.component";
               <div class="space-y-4">
                 @for (book of recentBooks; track book) {
                   <div
-                    class="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                    class="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 cursor-pointer"
                     (click)="openBook(book)">
-                    <div class="flex-shrink-0 w-16 h-24 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
+                    <div class="shrink-0 w-16 h-24 bg-gray-200 dark:bg-gray-700 rounded-sm overflow-hidden">
                       @if (book.coverUrl) {
                         <img
                           [src]="book.coverUrl"

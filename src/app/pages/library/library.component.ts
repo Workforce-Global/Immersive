@@ -86,7 +86,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                   type="checkbox"
                   [(ngModel)]="filters.epub"
                   (change)="applySortAndFilters()"
-                  class="rounded border-gray-300"
+                  class="rounded-sm border-gray-300"
                   />
                   <span class="ml-2">EPUB</span>
                 </label>
@@ -95,7 +95,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                     type="checkbox"
                     [(ngModel)]="filters.pdf"
                     (change)="applySortAndFilters()"
-                    class="rounded border-gray-300"
+                    class="rounded-sm border-gray-300"
                     />
                     <span class="ml-2">PDF</span>
                   </label>
@@ -111,7 +111,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                       type="checkbox"
                       [(ngModel)]="filters.notStarted"
                       (change)="applySortAndFilters()"
-                      class="rounded border-gray-300"
+                      class="rounded-sm border-gray-300"
                       />
                       <span class="ml-2">Not Started</span>
                     </label>
@@ -120,7 +120,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                         type="checkbox"
                         [(ngModel)]="filters.inProgress"
                         (change)="applySortAndFilters()"
-                        class="rounded border-gray-300"
+                        class="rounded-sm border-gray-300"
                         />
                         <span class="ml-2">In Progress</span>
                       </label>
@@ -129,7 +129,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                           type="checkbox"
                           [(ngModel)]="filters.completed"
                           (change)="applySortAndFilters()"
-                          class="rounded border-gray-300"
+                          class="rounded-sm border-gray-300"
                           />
                           <span class="ml-2">Completed</span>
                         </label>
@@ -149,7 +149,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                 <!-- Main Content -->
                 <div class="library-content" [class.sidebar-open]="showSidebar">
                   <!-- Header -->
-                  <header class="bg-white dark:bg-gray-800 shadow-sm">
+                  <header class="bg-white dark:bg-gray-800 shadow-xs">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
@@ -214,7 +214,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                         <input
                           type="text"
                           placeholder="Search your library..."
-                          class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           [(ngModel)]="searchQuery"
                           (ngModelChange)="onSearchChange($event)"
                           (focus)="showSearchResults = true"
@@ -230,7 +230,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                                 class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                                 (click)="handleBookClick(book)">
                                 <!-- Book Cover -->
-                                <div class="w-12 h-16 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden flex-shrink-0">
+                                <div class="w-12 h-16 bg-gray-200 dark:bg-gray-700 rounded-sm overflow-hidden shrink-0">
                                   @if (book.coverUrl) {
                                     <img
                                       [src]="book.coverUrl"
@@ -270,7 +270,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                           class="mb-6 flex justify-end">
                           <button
                             (click)="deleteSelectedBooks()"
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-xs text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                             >
                             <ng-icon name="heroTrash" class="h-5 w-5 mr-2"></ng-icon>
                             Delete Selected ({{ selectedBooks.size }})
@@ -297,7 +297,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                       </h2>
                       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         <div *ngFor="let book of recentBooks"
-                          class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden max-w-[180px]"
+                          class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden max-w-[180px]"
                           [class.ring-2]="multiSelect && isSelected(book)"
                           [class.ring-blue-500]="multiSelect && isSelected(book)"
                           (click)="handleBookClick(book)">
@@ -377,7 +377,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                             @for (book of filteredBooks(); track book) {
                               <div
-                                class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden max-w-[180px]"
+                                class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden max-w-[180px]"
                                 [class.ring-2]="multiSelect && isSelected(book)"
                                 [class.ring-blue-500]="multiSelect && isSelected(book)"
                                 (click)="handleBookClick(book)">
@@ -468,7 +468,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                           <div class="mt-6">
                             <button
                               (click)="importBook()"
-                              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-xs text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                               >
                               <ng-icon name="heroPlus" class="h-5 w-5 mr-2"></ng-icon>
                               Import Book
@@ -519,13 +519,13 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
                               <div class="mt-6 flex justify-end space-x-3">
                                 <button
                                   (click)="selectedBook = null"
-                                  class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   >
                                   Close
                                 </button>
                                 <button
                                   (click)="deleteBook(selectedBook)"
-                                  class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                  class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                   >
                                   Delete
                                 </button>

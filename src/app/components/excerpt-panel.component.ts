@@ -19,13 +19,13 @@ import { ExcerptService, Excerpt } from '../services/excerpt.service';
       </div>
 
       <div class="mb-4">
-        <div class="text-sm bg-gray-50 dark:bg-gray-700 p-3 rounded mb-2">
+        <div class="text-sm bg-gray-50 dark:bg-gray-700 p-3 rounded-sm mb-2">
           {{ text }}
         </div>
         <textarea
           [(ngModel)]="note"
           placeholder="Add a note (optional)"
-          class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white text-sm"
+          class="w-full p-2 rounded-sm border dark:bg-gray-700 dark:text-white text-sm"
           rows="3"
         ></textarea>
       </div>
@@ -39,7 +39,7 @@ import { ExcerptService, Excerpt } from '../services/excerpt.service';
         </button>
         <button
           (click)="saveExcerpt()"
-          class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          class="px-3 py-1 text-sm bg-blue-600 text-white rounded-sm hover:bg-blue-700"
         >
           Save Excerpt
         </button>

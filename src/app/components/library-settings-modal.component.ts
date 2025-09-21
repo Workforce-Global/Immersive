@@ -24,7 +24,7 @@ interface LibrarySettings {
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Library Settings</h2>
           <button
             (click)="close.emit()"
-            class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
+            class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden"
             >
             <ng-icon name="heroXMark" class="w-6 h-6"></ng-icon>
           </button>
@@ -43,7 +43,7 @@ interface LibrarySettings {
                   (click)="updateSettings({ theme })"
                   [class.ring-2]="settings.theme === theme"
                   [class.ring-blue-500]="settings.theme === theme"
-                  class="w-10 h-10 rounded-full focus:outline-none"
+                  class="w-10 h-10 rounded-full focus:outline-hidden"
                 [ngClass]="{
                   'bg-white': theme === 'light',
                   'bg-gray-900': theme === 'dark',
@@ -113,7 +113,7 @@ interface LibrarySettings {
         <div class="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <button
             (click)="close.emit()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
             Done
           </button>

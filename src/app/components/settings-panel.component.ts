@@ -16,10 +16,10 @@ import { firstValueFrom } from 'rxjs';
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1">Font Size</label>
         <div class="flex items-center space-x-2">
-          <button class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+          <button class="p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                   (click)="updateFontSize(-1)">-</button>
           <span>{{ settings.fontSize }}px</span>
-          <button class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+          <button class="p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                   (click)="updateFontSize(1)">+</button>
         </div>
       </div>
@@ -29,7 +29,7 @@ import { firstValueFrom } from 'rxjs';
         <label class="block text-sm font-medium mb-1">Font Family</label>
         <select [(ngModel)]="settings.fontFamily"
                 (ngModelChange)="updateSettings({ fontFamily: $event })"
-                class="w-full p-2 rounded border dark:bg-gray-700">
+                class="w-full p-2 rounded-sm border dark:bg-gray-700">
           <option value="system-ui">System Default</option>
           <option value="Georgia">Georgia</option>
           <option value="Palatino">Palatino</option>
@@ -72,7 +72,7 @@ import { firstValueFrom } from 'rxjs';
         <div class="flex space-x-2">
           <button *ngFor="let viewModeOption of viewModes"
                   [class.bg-blue-100]="settings.viewMode === viewModeOption"
-                  class="px-3 py-1 rounded"
+                  class="px-3 py-1 rounded-sm"
                   (click)="updateSettings({ viewMode: viewModeOption })">
             {{ viewModeOption | titlecase }}
           </button>

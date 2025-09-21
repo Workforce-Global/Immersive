@@ -146,9 +146,9 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
     
           <!-- Progress Bar -->
           <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-            <div class="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded">
+            <div class="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-sm">
               <div
-                class="absolute h-full bg-blue-500 rounded transition-all duration-300"
+                class="absolute h-full bg-blue-500 rounded-sm transition-all duration-300"
                 [style.width.%]="(currentBook?.progress || 0) * 100"
               ></div>
             </div>

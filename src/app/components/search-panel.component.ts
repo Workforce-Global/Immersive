@@ -14,7 +14,7 @@ import { SearchService, SearchResult } from '../services/search.service';
           [(ngModel)]="searchQuery"
           (ngModelChange)="onSearch($event)"
           placeholder="Search in book..."
-          class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white"
+          class="w-full p-2 rounded-sm border dark:bg-gray-700 dark:text-white"
           />
         </div>
     
@@ -22,7 +22,7 @@ import { SearchService, SearchResult } from '../services/search.service';
           <div class="space-y-4">
             @for (result of results; track result) {
               <div
-                class="p-3 rounded bg-gray-50 dark:bg-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                class="p-3 rounded-sm bg-gray-50 dark:bg-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                 (click)="navigateToResult(result)">
                 <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                   {{ result.percentage }}% through book
