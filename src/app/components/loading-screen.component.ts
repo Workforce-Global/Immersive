@@ -2,10 +2,9 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-loading-screen',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-loading-screen',
+    imports: [CommonModule],
+    template: `
     <div *ngIf="show" 
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-8 flex flex-col items-center">

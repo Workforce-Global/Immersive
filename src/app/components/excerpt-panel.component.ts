@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ExcerptService, Excerpt } from '../services/excerpt.service';
 
 @Component({
-  selector: 'app-excerpt-panel',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
+    selector: 'app-excerpt-panel',
+    imports: [CommonModule, FormsModule],
+    template: `
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md">
       <div class="flex justify-between items-start mb-4">
         <h3 class="text-lg font-semibold">Save Excerpt</h3>

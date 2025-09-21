@@ -14,24 +14,23 @@ import {
 import { TitleBarComponent } from "../../components/title-bar.component";
 
 @Component({
-  selector: "app-dashboard",
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    NgIconComponent,
-    TitleBarComponent
-  ],
-  providers: [
-    provideIcons({ 
-      heroBookOpen,
-      heroChevronRight,
-      heroListBullet,
-      heroSquares2x2
-    })
-  ],
-  template: `
+    selector: "app-dashboard",
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        NgIconComponent,
+        TitleBarComponent
+    ],
+    providers: [
+        provideIcons({
+            heroBookOpen,
+            heroChevronRight,
+            heroListBullet,
+            heroSquares2x2
+        })
+    ],
+    template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
       <app-title-bar class="titlebar"></app-title-bar>
 

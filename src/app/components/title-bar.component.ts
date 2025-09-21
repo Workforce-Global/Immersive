@@ -12,19 +12,18 @@ import { Router } from '@angular/router';
 import { appWindow } from '@tauri-apps/api/window';
 
 @Component({
-  selector: 'app-title-bar',
-  standalone: true,
-  imports: [CommonModule, NgIconComponent],
-  providers: [
-    provideIcons({ 
-      heroMinus, 
-      heroSquares2x2, 
-      heroXMark,
-      heroChevronLeft,
-      heroHome
-    })
-  ],
-  template: `
+    selector: 'app-title-bar',
+    imports: [CommonModule, NgIconComponent],
+    providers: [
+        provideIcons({
+            heroMinus,
+            heroSquares2x2,
+            heroXMark,
+            heroChevronLeft,
+            heroHome
+        })
+    ],
+    template: `
     <div class="flex items-center justify-between h-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 select-none">
       <!-- Left section -->
       <div class="flex items-center px-4 space-x-4 titlebar-drag-region">
@@ -89,7 +88,7 @@ import { appWindow } from '@tauri-apps/api/window';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
       position: fixed;

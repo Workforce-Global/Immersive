@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { LookupService, LookupResult } from '../services/lookup.service';
 
 @Component({
-  selector: 'app-lookup-panel',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-lookup-panel',
+    imports: [CommonModule],
+    template: `
     <div *ngIf="result" 
          class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md">
       <div class="flex justify-between items-start mb-4">

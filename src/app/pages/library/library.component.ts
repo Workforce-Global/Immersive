@@ -23,32 +23,31 @@ import { LoadingScreenComponent } from "../../components/loading-screen.componen
 import { LibrarySettingsModalComponent } from "../../components/library-settings-modal.component";
 
 @Component({
-  selector: "app-library",
-  standalone: true,
-  imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
-    NgIconComponent,
-    TitleBarComponent,
-    LoadingScreenComponent,
-    LibrarySettingsModalComponent
-  ],
-  providers: [
-    provideIcons({ 
-      heroBookOpen, 
-      heroPlus, 
-      heroCog,
-      heroMagnifyingGlass, 
-      heroTrash, 
-      heroEllipsisVertical,
-      heroChevronRight,
-      heroCheck,
-      heroXMark,
-      heroBars3
-    })
-  ],
-  template: `
+    selector: "app-library",
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        NgIconComponent,
+        TitleBarComponent,
+        LoadingScreenComponent,
+        LibrarySettingsModalComponent
+    ],
+    providers: [
+        provideIcons({
+            heroBookOpen,
+            heroPlus,
+            heroCog,
+            heroMagnifyingGlass,
+            heroTrash,
+            heroEllipsisVertical,
+            heroChevronRight,
+            heroCheck,
+            heroXMark,
+            heroBars3
+        })
+    ],
+    template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
       <!-- Title Bar -->
       <app-title-bar class="titlebar"></app-title-bar>
@@ -528,7 +527,7 @@ import { LibrarySettingsModalComponent } from "../../components/library-settings
         ></app-library-settings-modal>
       </div>
     </div>
-  `,
+  `
 })
 export class LibraryComponent implements OnInit {
   books: Book[] = [];

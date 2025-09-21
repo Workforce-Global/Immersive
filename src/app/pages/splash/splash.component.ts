@@ -4,10 +4,9 @@ import { Router } from "@angular/router";
 import { TitleBarComponent } from "../../components/title-bar.component";
 
 @Component({
-  selector: "app-splash",
-  standalone: true,
-  imports: [CommonModule, TitleBarComponent],
-  template: `
+    selector: "app-splash",
+    imports: [CommonModule, TitleBarComponent],
+    template: `
     <div class="min-h-screen bg-gray-900 flex flex-col">
       <app-title-bar></app-title-bar>
 
@@ -22,7 +21,7 @@ import { TitleBarComponent } from "../../components/title-bar.component";
         </div>
       </div>
     </div>
-  `,
+  `
 })
 export class SplashComponent implements OnInit {
   constructor(private router: Router) {}

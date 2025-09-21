@@ -4,10 +4,9 @@ import { ReaderComponent } from './reader.component';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-parallel-reader',
-  standalone: true,
-  imports: [CommonModule, ReaderComponent],
-  template: `
+    selector: 'app-parallel-reader',
+    imports: [CommonModule, ReaderComponent],
+    template: `
     <div class="h-screen flex">
       <!-- Left book -->
       <div class="flex-1 border-r border-gray-200 dark:border-gray-700">

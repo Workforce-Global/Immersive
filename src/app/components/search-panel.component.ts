@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { SearchService, SearchResult } from '../services/search.service';
 
 @Component({
-  selector: 'app-search-panel',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
+    selector: 'app-search-panel',
+    imports: [CommonModule, FormsModule],
+    template: `
     <div class="bg-white dark:bg-gray-800 h-full w-80 p-4 overflow-y-auto">
       <div class="mb-4">
         <input

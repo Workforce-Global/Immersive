@@ -29,31 +29,30 @@ import {
 import { PDFDocumentProxy } from 'pdfjs-dist';
 
 @Component({
-  selector: "app-reader",
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TitleBarComponent,
-    TocPanelComponent,
-    SettingsModalComponent,
-    SearchPanelComponent,
-    LookupPanelComponent,
-    ExcerptPanelComponent,
-    NgIconComponent,
-    LoadingScreenComponent
-  ],
-  providers: [
-    provideIcons({ 
-      heroChevronLeft, 
-      heroChevronRight,
-      heroMagnifyingGlass,
-      heroCog,
-      heroBookOpen,
-      heroXMark
-    })
-  ],
-  template: `
+    selector: "app-reader",
+    imports: [
+        CommonModule,
+        FormsModule,
+        TitleBarComponent,
+        TocPanelComponent,
+        SettingsModalComponent,
+        SearchPanelComponent,
+        LookupPanelComponent,
+        ExcerptPanelComponent,
+        NgIconComponent,
+        LoadingScreenComponent
+    ],
+    providers: [
+        provideIcons({
+            heroChevronLeft,
+            heroChevronRight,
+            heroMagnifyingGlass,
+            heroCog,
+            heroBookOpen,
+            heroXMark
+        })
+    ],
+    template: `
     <div class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       <!-- Loading Screen -->
       <app-loading-screen 

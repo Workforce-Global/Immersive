@@ -13,11 +13,10 @@ interface TocItem {
 }
 
 @Component({
-  selector: 'app-toc-panel',
-  standalone: true,
-  imports: [CommonModule, NgIconComponent],
-  providers: [provideIcons({ heroChevronRight })],
-  template: `
+    selector: 'app-toc-panel',
+    imports: [CommonModule, NgIconComponent],
+    providers: [provideIcons({ heroChevronRight })],
+    template: `
     <div class="h-full bg-white dark:bg-gray-800 flex flex-col">
       <!-- Header -->
       <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -80,7 +79,7 @@ interface TocItem {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .custom-scrollbar {
       scrollbar-width: thin;
       scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
