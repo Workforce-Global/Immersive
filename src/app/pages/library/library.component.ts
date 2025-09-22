@@ -4,7 +4,7 @@ import { RouterModule } from "@angular/router";
 import { BookService, Book } from "../../services/book.service";
 import { Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
   heroBookOpen, 

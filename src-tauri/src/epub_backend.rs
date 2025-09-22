@@ -1,12 +1,11 @@
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 use epub::doc::EpubDoc;
 use serde::Serialize;
 use std::fs::{self, File};
-use std::io::{Write};
-use std::path::{PathBuf};
-use tauri::{AppHandle};
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
-
+use std::io::Write;
+use std::path::PathBuf;
+use tauri::AppHandle;
 
 #[derive(Serialize)]
 pub struct EpubMetadata {
@@ -22,7 +21,8 @@ pub fn extract_metadata(app_handle: AppHandle, file_path: String) -> Result<Epub
         return Err("File does not exist".to_string());
     }
 
-    let mut doc = EpubDoc::new(&file_path).map_err(|e| format!("Failed to open EPUB file: {:?}", e))?;
+    let mut doc =
+        EpubDoc::new(&file_path).map_err(|e| format!("Failed to open EPUB file: {:?}", e))?;
 
     let title = doc
         .mdata("title")
@@ -35,17 +35,21 @@ pub fn extract_metadata(app_handle: AppHandle, file_path: String) -> Result<Epub
     let cover_base64 = match doc.get_cover() {
         Some((cover_data, _)) => {
             // Use AppHandle to get app data dir properly
-            let app_data_path = app_handle.path_resolver().app_data_dir()
+            let app_data_path = app_handle
+                .path_resolver()
+                .app_data_dir()
                 .ok_or("Failed to get app data dir")?
                 .join("books");
 
             // Ensure books directory exists
             if !app_data_path.exists() {
-                fs::create_dir_all(&app_data_path).map_err(|e| format!("Failed to create books directory: {:?}", e))?;
+                fs::create_dir_all(&app_data_path)
+                    .map_err(|e| format!("Failed to create books directory: {:?}", e))?;
             }
 
             // Generate a unique cover filename based on the book ID
-            let book_id = path.file_stem()
+            let book_id = path
+                .file_stem()
                 .and_then(|os_str| os_str.to_str())
                 .unwrap_or("unknown_cover")
                 .to_string();
@@ -59,7 +63,10 @@ pub fn extract_metadata(app_handle: AppHandle, file_path: String) -> Result<Epub
                         None
                     } else {
                         // Convert image to Base64 for direct frontend display
-                        Some(format!("data:image/jpeg;base64,{}", STANDARD.encode(cover_data)))
+                        Some(format!(
+                            "data:image/jpeg;base64,{}",
+                            STANDARD.encode(cover_data)
+                        ))
                     }
                 }
                 Err(e) => {
@@ -99,8 +106,6 @@ pub fn get_cover_base64(file_path: String) -> Result<String, String> {
     }
 }
 
-
-
 #[tauri::command]
 pub fn check_storage_path(handle: AppHandle) -> Result<String, String> {
     let app_data_path = handle
@@ -128,7 +133,6 @@ pub fn read_epub_content(file_path: String) -> Result<Vec<u8>, String> {
     if !path.exists() {
         return Err("File does not exist".to_string());
     }
-    
-    fs::read(&path)
-        .map_err(|e| format!("Failed to read EPUB content: {:?}", e))
+
+    fs::read(&path).map_err(|e| format!("Failed to read EPUB content: {:?}", e))
 }

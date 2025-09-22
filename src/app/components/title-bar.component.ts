@@ -9,7 +9,8 @@ import {
   heroHome
 } from '@ng-icons/heroicons/outline';
 import { Router } from '@angular/router';
-import { appWindow } from '@tauri-apps/api/window';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+const appWindow = getCurrentWebviewWindow()
 
 @Component({
     selector: 'app-title-bar',

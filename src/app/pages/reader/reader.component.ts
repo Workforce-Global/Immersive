@@ -16,7 +16,7 @@ import { SettingsService } from "../../services/settings.service";
 import { uint8ArrayToString } from "uint8array-extras";
 import ePub from "epubjs";
 import { take } from "rxjs";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
   heroChevronLeft, 

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { open } from "@tauri-apps/api/dialog";
+import { open } from "@tauri-apps/plugin-dialog";
 import {
   readBinaryFile,
   writeBinaryFile,
@@ -7,8 +7,8 @@ import {
   createDir,
   BaseDirectory,
   removeFile,
-} from "@tauri-apps/api/fs";
-import { invoke } from "@tauri-apps/api/tauri";
+} from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import { BehaviorSubject } from "rxjs";
 import * as pdfjsLib from 'pdfjs-dist';
 
