@@ -1,0 +1,136 @@
+'use client';
+
+import { X } from 'lucide-react';
+import { useSettingsStore } from '@/stores/settings-store';
+import { ReaderSettings } from '@/types/book';
+
+interface SettingsModalProps {
+  onClose: () => void;
+}
+
+const themes: Array<'light' | 'dark' | 'sepia'> = ['light', 'dark', 'sepia'];
+const viewModes: Array<'scroll' | 'paginated'> = ['scroll', 'paginated'];
+
+export function SettingsModal({ onClose }: SettingsModalProps) {
+  const { settings, updateSettings } = useSettingsStore();
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in">
+      <div
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 animate-slide-up"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Reader Settings</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Font Size</label>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => updateSettings({ fontSize: Math.max(12, settings.fontSize - 1) })}
+                className="p-2 rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                A-
+              </button>
+              <span className="text-gray-700 dark:text-gray-300">{settings.fontSize}px</span>
+              <button
+                onClick={() => updateSettings({ fontSize: Math.min(24, settings.fontSize + 1) })}
+                className="p-2 rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                A+
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Font Family</label>
+            <select
+              value={settings.fontFamily}
+              onChange={e => updateSettings({ fontFamily: e.target.value })}
+              className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="system-ui">System Default</option>
+              <option value="Merriweather">Merriweather</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Times New Roman">Times New Roman</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Theme</label>
+            <div className="flex space-x-4">
+              {themes.map(theme => (
+                <button
+                  key={theme}
+                  onClick={() => updateSettings({ theme })}
+                  className={`w-10 h-10 rounded-full focus:outline-hidden ${
+                    settings.theme === theme ? 'ring-2 ring-blue-500' : ''
+                  } ${theme === 'light' ? 'bg-white' : theme === 'dark' ? 'bg-gray-900' : 'bg-[#f4ecd8]'}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Layout</label>
+            <div className="flex space-x-4">
+              {viewModes.map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => updateSettings({ viewMode: mode })}
+                  className={`px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 ${
+                    settings.viewMode === mode ? 'bg-blue-100 dark:bg-blue-900' : ''
+                  }`}
+                >
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Line Height</label>
+            <input
+              type="range"
+              min="1"
+              max="2"
+              step="0.1"
+              value={settings.lineHeight}
+              onChange={e => updateSettings({ lineHeight: parseFloat(e.target.value) })}
+              className="w-full"
+            />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{settings.lineHeight}x</span>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Page Margins</label>
+            <input
+              type="range"
+              min="0"
+              max="64"
+              step="8"
+              value={settings.margins}
+              onChange={e => updateSettings({ margins: parseInt(e.target.value) })}
+              className="w-full"
+            />
+            <span className="text-sm text-gray-500 dark:text-gray-400">{settings.margins}px</span>
+          </div>
+        </div>
+
+        <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -2,9 +2,9 @@
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run start",
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:4200"
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000"
   },
   "bundle": {
     "active": true,

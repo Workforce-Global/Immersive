@@ -1,3 +1,25 @@
-.angular
-dist
 node_modules
+.next
+out
+build
+dist
+.angular
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
