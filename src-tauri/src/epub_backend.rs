@@ -6,6 +6,7 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use tauri::AppHandle;
+use tauri::Manager;
 
 #[derive(Serialize)]
 pub struct EpubMetadata {
@@ -26,9 +27,11 @@ pub fn extract_metadata(app_handle: AppHandle, file_path: String) -> Result<Epub
 
     let title = doc
         .mdata("title")
+        .map(|m| m.value.clone())
         .unwrap_or_else(|| "Unknown Title".to_string());
     let author = doc
         .mdata("creator")
+        .map(|m| m.value.clone())
         .unwrap_or_else(|| "Unknown Author".to_string());
 
     // Extract cover image if available
@@ -36,9 +39,9 @@ pub fn extract_metadata(app_handle: AppHandle, file_path: String) -> Result<Epub
         Some((cover_data, _)) => {
             // Use AppHandle to get app data dir properly
             let app_data_path = app_handle
-                .path_resolver()
+                .path()
                 .app_data_dir()
-                .ok_or("Failed to get app data dir")?
+                .map_err(|e| format!("Failed to get app data dir: {e}"))?
                 .join("books");
 
             // Ensure books directory exists
@@ -109,9 +112,9 @@ pub fn get_cover_base64(file_path: String) -> Result<String, String> {
 #[tauri::command]
 pub fn check_storage_path(handle: AppHandle) -> Result<String, String> {
     let app_data_path = handle
-        .path_resolver()
+        .path()
         .app_data_dir()
-        .ok_or("Failed to get app data dir")?; // Handle None case properly
+        .map_err(|e| format!("Failed to get app data dir: {e}"))?;
 
     let storage_path: PathBuf = app_data_path.join("books");
 

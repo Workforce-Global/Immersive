@@ -43,7 +43,7 @@
   "productName": "immersive",
   "mainBinaryName": "immersive",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.immersive.app",
   "plugins": {},
   "app": {
     "windows": [
